@@ -19,22 +19,31 @@ lambda_output_file=/opt/app/build/$1
 set -e
 
 yum update -y
-yum install -y cpio python2-pip yum-utils zip openssl
+yum install -y cpio python3-pip yum-utils zip unzip less openssl
 yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum install wget -y 
+wget https://bootstrap.pypa.io/get-pip.py
+python get-pip.py 
 pip install pipenv
 pipenv install
 
 pushd /tmp
-yumdownloader -x \*i686 --archlist=x86_64 clamav clamav-lib clamav-update json-c pcre2
+yumdownloader -x \*i686 --archlist=x86_64 clamav clamav-lib clamav-update json-c pcre2 libprelude gnutls libtasn1 lib64nettle nettle
 rpm2cpio clamav-0*.rpm | cpio -idmv
 rpm2cpio clamav-lib*.rpm | cpio -idmv
 rpm2cpio clamav-update*.rpm | cpio -idmv
 rpm2cpio json-c*.rpm | cpio -idmv
 rpm2cpio pcre*.rpm | cpio -idmv
+rpm2cpio libprelude*.rpm | cpio -idmv
+rpm2cpio gnutls*.rpm | cpio -idmv
+#rpm2cpio lib* | cpio -idmv had issues running this in the container
+rpm2cpio libtasn1*.rpm | cpio -idmv
+rpm2cpio nettle*.rpm | cpio -idmv
 popd
 mkdir -p bin
 cp /tmp/usr/bin/clamscan /tmp/usr/bin/freshclam /tmp/usr/lib64/* bin/.
 echo "DatabaseMirror database.clamav.net" > bin/freshclam.conf
+echo "CompressLocalDatabase yes" >> bin/freshclam.conf
 
 mkdir -p build
 #Ensure permissions on python files are correct

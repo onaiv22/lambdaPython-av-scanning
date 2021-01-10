@@ -2,7 +2,7 @@
 name = "lambda-s3-bucket-clamav"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["Femi Okuta onaiv22@gmail.com"]
 
 [tool.poetry.dependencies]
 python = "^2.7"

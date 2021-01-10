@@ -22,10 +22,20 @@ from subprocess import check_output, Popen, PIPE, STDOUT
 import boto3
 import botocore
 
+import scan
+import copy
+
+
+
 from common import *  # noqa
+
+ENV = os.getenv("ENV", "")
+EVENT_SOURCE = os.getenv("EVENT_SOURCE", "S3")
 
 
 RE_SEARCH_DIR = r"SEARCH_DIR\(\"=([A-z0-9\/\-_]*)\"\)"
+
+
 
 
 def current_library_search_path():
@@ -129,8 +139,8 @@ def md5_from_s3_tags(bucket, key):
             return tag["Value"]
     return ""
 
-
-def scan_file(path):
+def scan_file(path, event):
+    s3_client = boto3.client("s3")
     av_env = os.environ.copy()
     av_env["LD_LIBRARY_PATH"] = CLAMAVLIB_PATH
     print("Starting clamscan of %s." % path)

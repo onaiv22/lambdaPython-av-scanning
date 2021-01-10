@@ -15,7 +15,7 @@ AMZ_LINUX_VERSION:=2
 current_dir := $(shell pwd)
 container_dir := /opt/app
 LAMBDA_NAME := clamav-scanner
-BUCKET_NAME := txm-lambda-functions-integration
+BUCKET_NAME := lambda-functions-integration20122020 #txm-lambda-functions-integration
 LATEST_TAG := $(shell git tag --sort=v:refname \
         | grep -E "^v[0-9]+\.[0-9]+\.[0-9]+" | tail -1 )
 TAG_MAJOR_NUMBER := $(shell echo $(LATEST_TAG) | cut -f 1 -d '.' )

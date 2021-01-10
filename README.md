@@ -1,3 +1,11 @@
+# CHANGES MADE TO THE CODE
+
+I have written a method to copy clean files after scanning to a destination bucket and append
+new tags to current file tags. this method is called copy_clean_files and its in clamav module.
+It called in the scan_file method and takes 2 arguments which are passed in the lambda_handler fucntion. they are %path and event.
+
+Have also included a new env variable called AV_DESTINATION_S3_BUCKET = os.getenv("AV_DESTINATION_S3_BUCKET") which will take the bucket name for the destination bucket.
+
 # bucket-antivirus-function
 
 [![CircleCI](https://circleci.com/gh/upsidetravel/bucket-antivirus-function.svg?style=svg)](https://circleci.com/gh/upsidetravel/bucket-antivirus-function)
@@ -25,6 +33,7 @@ Lambda are typically faster and more reliable than another source
 extracted and the files inside scanned also
 - The objects tags are updated to reflect the result of the scan, CLEAN
 or INFECTED, along with the date and time of the scan.
+- Clean files are copied into a destination bucket with new tags appended to the tags.
 - Object metadata is updated to reflect the result of the scan (optional)
 - Metrics are sent to [DataDog](https://www.datadoghq.com/) (optional)
 - Scan results are published to a SNS topic (optional) (Optionally choose to only publish INFECTED results)
@@ -229,6 +238,7 @@ the table below for reference.
 | Variable | Description | Default | Required |
 | --- | --- | --- | --- |
 | AV_DEFINITION_S3_BUCKET | Bucket containing antivirus definition files |  | Yes |
+|  AV_DESTINATION_S3_BUCKET | Bucket containing antivirus definition files |  | Yes |
 | AV_DEFINITION_S3_PREFIX | Prefix for antivirus definition files | clamav_defs | No |
 | AV_DEFINITION_PATH | Path containing files at runtime | /tmp/clamav_defs | No |
 | AV_SCAN_START_SNS_ARN | SNS topic ARN to publish notification about start of scan | | No |
