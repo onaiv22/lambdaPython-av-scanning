@@ -139,6 +139,35 @@ def md5_from_s3_tags(bucket, key):
             return tag["Value"]
     return ""
 
+def copy_clean_files(path, event):
+    s3 = boto3.resource("s3")
+    s3_client = boto3.client("s3")
+    destination_bucket = AV_DESTINATION_S3_BUCKET
+    s3_object = scan.event_object(event)
+    source_bucket = s3_object.bucket_name
+    head, tail = os.path.split(path)
+    key = tail
+    uploader_name = "femi"
+    print("copying %s to %s:" %(key, destination_bucket))
+    curr_tags = s3_client.get_object_tagging(
+        Bucket=source_bucket, Key=key
+    )["TagSet"]
+    new_tags = copy.copy(curr_tags)
+    new_tags.append(
+        {
+            "Key": "uploader_name",
+            "Value": uploader_name
+        }
+    )
+    s3_client.put_object_tagging(
+        Bucket=source_bucket,
+        Key=key,
+        #Tagging={"TagSet": [{"Key": "uploader_name", "Value": uploader_name}]},
+        Tagging={"TagSet": new_tags}
+    )
+    copy_source = {"Bucket": source_bucket, "Key": key}
+    s3.meta.client.copy(copy_source, destination_bucket, key)    
+
 def scan_file(path, event):
     s3_client = boto3.client("s3")
     av_env = os.environ.copy()
@@ -153,6 +182,7 @@ def scan_file(path, event):
     output = av_proc.communicate()[0]
     print("clamscan output:\n%s" % output)
     if av_proc.returncode == 0:
+        copy_clean_files(path, event)
         return AV_STATUS_CLEAN
     elif av_proc.returncode == 1:
         return AV_STATUS_INFECTED
